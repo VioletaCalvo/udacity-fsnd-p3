@@ -132,6 +132,8 @@ sudo apt-get install ntp
   Port 2222
   # Ensure tunneled clear text passwords are disabled
   PasswordAuthentication no
+  # Disable root login
+  PermitRootLogin no
 
   # After save changes we need to restart ssh service
   sudo service ssh restart
