@@ -14,18 +14,18 @@ import requests
 
 app = Flask(__name__)
 
-CLIENT_ID = json.loads(
-    open('clientsecrets_google.json', 'r').read())['web']['client_id']
+GOOGLE_SECRETS_PATH = '/var/www/html/catalog/clientsecrets/clientsecrets_google.json'
+FACEBOOK_SECRETS_PATH = '/var/www/html/catalog/clientsecrets/clientsecrets_facebook.json'
+
+CLIENT_ID = json.loads(open(GOOGLE_SECRETS_PATH, 'r').read())['web']['client_id']
 APPLICATION_NAME = "Item Catalog app"
 
-
 # Connect to Database and create database session
-engine = create_engine('postgresql:///catalog')
+engine = create_engine('postgresql://catalog:cornytocei@localhost/catalog')
 Base.metadata.bind = engine
 
 DBSession = sessionmaker(bind=engine)
 session = DBSession()
-
 
 # User Helper Functions
 def createUser(login_session):
@@ -56,8 +56,7 @@ def showLogin():
     state = ''.join(random.choice(string.ascii_uppercase + string.digits)
                     for x in xrange(32))
     login_session['state'] = state
-    facebookAppId = json.loads(open('clientsecrets_facebook.json', 'r').read())[
-    'web']['app_id']
+    facebookAppId = json.loads(open(FACEBOOK_SECRETS_PATH, 'r').read())['web']['app_id']
     # return "The current session state is %s" % login_session['state']
     return render_template('login.html', STATE=state, FACEBOOK_APP_ID=facebookAppId)
 
@@ -72,10 +71,10 @@ def fbconnect():
     access_token = request.data
     print "access token received %s " % access_token
 
-    app_id = json.loads(open('clientsecrets_facebook.json', 'r').read())[
+    app_id = json.loads(open(FACEBOOK_SECRETS_PATH, 'r').read())[
         'web']['app_id']
     app_secret = json.loads(
-        open('clientsecrets_facebook.json', 'r').read())['web']['app_secret']
+        open(FACEBOOK_SECRETS_PATH, 'r').read())['web']['app_secret']
     url = 'https://graph.facebook.com/oauth/access_token?grant_type=fb_exchange_token&client_id=%s&client_secret=%s&fb_exchange_token=%s' % (
         app_id, app_secret, access_token)
     h = httplib2.Http()
@@ -151,7 +150,7 @@ def gconnect():
 
     try:
         # Upgrade the authorization code into a credentials object
-        oauth_flow = flow_from_clientsecrets('clientsecrets_google.json', scope='')
+        oauth_flow = flow_from_clientsecrets(GOOGLE_SECRETS_PATH, scope='')
         oauth_flow.redirect_uri = 'postmessage'
         credentials = oauth_flow.step2_exchange(code)
     except FlowExchangeError:
@@ -291,7 +290,7 @@ def CategoriesJSON():
 
 # Show all Categories and lastest items
 @app.route('/')
-def showCatalog():
+def showCatalog(): 
     categories = session.query(Category).order_by(asc(Category.id))
     items = session.query(Item).order_by(desc(Item.id))
     # create a categories id-name dictionary
@@ -388,7 +387,7 @@ def deleteItem(item_name, category_name):
 if __name__ == '__main__':
     app.secret_key = 'super_secret_key'
     app.debug = True
-    app.run(host='0.0.0.0', port=8000)
+    app.run()
     
 # app.secret_key = 'super_secret_key'
 # app.debug = True
