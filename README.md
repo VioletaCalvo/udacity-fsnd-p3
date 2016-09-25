@@ -307,9 +307,9 @@ session = DBSession()
   ```
 
 #### 6.4. Configure WSGI for your app
-  I used `catalog.wsgi` and `catalog.conf` from this repo.
+  I used `app/catalog.wsgi` and `catalog.conf` from this repo.
   ```shell
-  # create and edit a .wsgi file for your app (see catalog.wsgi)
+  # create and edit a .wsgi file for your app (see app/catalog.wsgi)
   sudo touch /var/www/html/catalog/catalog.wsgi
   sudo nano /var/www/html/catalog/catalog.wsgi
 
